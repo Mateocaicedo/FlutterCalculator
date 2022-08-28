@@ -10,162 +10,202 @@ class ArithmetitOperations extends StatefulWidget {
 class Math extends State<ArithmetitOperations> {
   dynamic resultado = 0;
 
-  final textStyle = const TextStyle(fontSize: 20.0);
+  final textStyle =  TextStyle(color: Colors.amber[700], fontSize: 25);
 
   dynamic num1;
   dynamic num2;
-  final exp = RegExp(r'^[0-9]+$');
-  final key = GlobalKey<FormState>();
   
 
+  String temp ='0'; //psuedo output, we keep this in memory and later assign it as num1, num2, or as decimal value.
+  String output = '0';
+  String operand = "";
+  String history = "";
 
 
-  @override
-  Widget build(BuildContext context) {
-    var form = <Widget> [
-               TextFormField(
-                decoration: const  InputDecoration(
-                  border:  OutlineInputBorder(),
-                  labelText: 'Write a number',
-                  prefixIcon: Icon(Icons.numbers,color: Colors.deepOrangeAccent),
-                  fillColor: Colors.deepOrangeAccent,
-                 
-                ),
-                
-                onSaved: (value) => num1 = value,
-                validator: (value){
-                  if (value == null  || value.isEmpty) {
-                    return 'Llene este campo';
-                  }
-                  if (!exp.hasMatch(value) ) {
-                    return 'Solo numeros';
-                  }
-                  return null;
-                },
-              ),
-              const Padding(padding: EdgeInsets.all(16.0)),
-              TextFormField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Write another number',
-                   prefixIcon: Icon(Icons.numbers,color: Colors.deepOrangeAccent,)
-                  
-                ),
-                onSaved: (value)=> num2 = value,
-                validator: (value){
-                  if (value == null  || value.isEmpty) {
-                    return 'Llene este campo';
-                  }
-                   if (!exp.hasMatch(value)) {
-                    return 'Solo numeros';
-                  }
-                   return null;
-                },
-              ),
-              const Padding(padding: EdgeInsets.all(13.0)),
-              Text('RESULTADO $resultado', style: textStyle),
-            ];
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.deepOrangeAccent,
-        title: Text('Operaciones matematicas', style: textStyle),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 40, left:30, right:30 ),
-        child: Form(
-          key: key,
-          child: Column(
+  Widget buildbutton(String buttonValue, int flexValue) {
+    return Expanded(
+      flex: flexValue,
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: const Color.fromRGBO(38, 38, 38, 1),
+          ),
+          onPressed: () {
+            setEdition(buttonValue);
+          },
+
+
+//designing the button
+          child: Container(
             // ignore: sort_child_properties_last
-            children: form,
-            mainAxisAlignment: MainAxisAlignment.start,
+            child: Text(
+              buttonValue,
+              style: const TextStyle(
+                  fontSize: 30, color: Color.fromRGBO(238, 134, 48, 1)),
+            ),
+            padding: const EdgeInsets.all(15),
           ),
         ),
-      ),
-
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            backgroundColor: Colors.blueGrey,
-            onPressed: add,
-            child:const  Icon(Icons.add),
-          ),
-          const Padding(padding: EdgeInsets.all(3.0)),
-         FloatingActionButton(
-             backgroundColor: Colors.amber,
-
-            onPressed: minus,
-             child:const Icon(Icons.remove),
-          ),
-          const Padding(padding: EdgeInsets.all(3.0)),
-          FloatingActionButton(
-            backgroundColor: Colors.red,
-            onPressed: multiply,
-            child:const Icon(Icons.close),
-          ),
-          const Padding(padding: EdgeInsets.all(3.0)),
-          FloatingActionButton(
-            backgroundColor: Colors.green,
-            onPressed: divider,
-            child: const Icon(Icons.dashboard),
-          ),
-        ],
       ),
     );
   }
 
-  divider() {
-    if (key.currentState!.validate()) {
-      key.currentState!.save();
-      if (double.parse(num2) <= 0  ) {
-        return showDialog(
-            context: context,
-            builder: (context) {
-              return const AlertDialog(
-                // Recupera el texto que el usuario ha digitado utilizando nuestro
-                // TextEditingController
-                content: Text('Division imposible'),
-              );
-            },
-          );
-      }
-      setState(() {
-        resultado = double.parse(num1) / double.parse(num2);
-      });
-    }
- 
-
+  @override
+  Widget build(BuildContext context) {
     
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title:Text('Calculator', style: textStyle), 
+      ),
+      body: Column(
+        // ignore: prefer_const_literals_to_create_immutables
+        children: [
+          const Expanded(
+            child: Divider()
+          ),
+
+
+          Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12.5),
+            // ignore: unnecessary_new
+            child: new Text(
+              history,
+              style: const TextStyle(
+                fontSize: 30,
+                // fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 77, 76, 76),
+              ),
+            ),
+          ),
+
+
+          Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.fromLTRB(12.5, 12.5, 12.5, 25),
+            // ignore: unnecessary_new
+            child: new Text(
+              output,
+              style: const TextStyle(
+                fontSize: 85,
+                // fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 189, 187, 187),
+              ),
+            ),
+          ),
+
+          Column(
+            children: [
+              Row(
+                children: [
+                  buildbutton("AC", 3),
+                  buildbutton("/", 1),
+                ],
+              ),
+              Row(
+                children: [
+                  buildbutton("7", 1),
+                  buildbutton("8", 1),
+                  buildbutton("9", 1),
+                  buildbutton("x", 1),
+                ],
+              ),
+              Row(
+                children: [
+                  buildbutton("4", 1),
+                  buildbutton("5", 1),
+                  buildbutton("6", 1),
+                  buildbutton("-", 1),
+                ],
+              ),
+              Row(
+              children: [
+                buildbutton("1", 1),
+                buildbutton("2", 1),
+                buildbutton("3", 1),
+                buildbutton("+", 1),
+              ],
+            ),
+            Row(
+              children: [
+                buildbutton("0", 1),
+                buildbutton(".", 1),
+                buildbutton("=", 2),
+              ],
+            ),
+            ],
+          ),
+        
+        ],
+      ),
+
+     
+    );
   }
 
-  void add() {
-     if (key.currentState!.validate()) {
-      key.currentState!.save();
-      setState(() {
-        resultado = int.parse(num1) + int.parse(num2);
-      });
-    }
- 
+void setEdition( buttonValue){
+    setState(() {
+      if (buttonValue == 'AC') {
+                temp = '0';
+                num1 = 0;
+                num2 = 0;
+                operand = "";
+              } else if (buttonValue == '+' ||
+                  buttonValue == '-' ||
+                  buttonValue == 'x' ||
+                  buttonValue == '/' ||
+                  buttonValue == '%') {
+                num1 = double.parse(output);
+                operand = buttonValue;
+                temp = '0';
+              } else if (buttonValue == '.') {
+                if (temp.contains('.')) { // if the number already contains a decimal, we print this.
+                  return;
+                } else {
+                  temp = temp +
+                      buttonValue; //we are adding a decimal point to the number we have at hand
+                }
+              } else if (buttonValue == "=") {
+                num2 = double.parse(output);
+
+                if (operand == '+') {
+                  temp = (num1 + num2).toString();
+                } else if (operand == '-') {
+                  temp = (num1 - num2).toString();
+                } else if (operand == 'x') {
+                  temp = (num1 * num2).toString();
+                } else if (operand == '/') {
+                  temp = (num1 / num2).toString();
+                } else if (operand == '%') {
+                  temp = (num1 % num2).toString();
+                }
+
+                num1 = 0;
+                num2 = 0;
+                operand = "";
+              } else {
+                temp = temp + buttonValue;
+              }
+
+              setState(() {
+                output = double.parse(temp).toStringAsFixed(
+                    2); // temp will contain many zeroes, so we make it into a double and allow only two decimals, then we make it back into string.
+              });
+
+//recording history of the operations done
+             if(buttonValue!= 'AC'){
+              history = history + buttonValue;  // as long as buttonValue is not 'AC', keep displaying them. 
+              }
+              else{
+                history = '';                   // if 'AC' is pressed, then delete the history.
+              }
+              
+    });
   }
 
-  void minus() {
-    if (key.currentState!.validate()) {
-      key.currentState!.save();
-      setState(() {
-        resultado = int.parse(num1) - int.parse(num2);
-      });
-    }
  
-  }
-
-  void multiply() {
-     if (key.currentState!.validate()) {
-      key.currentState!.save();
-      setState(() {
-        resultado = int.parse(num1) * int.parse(num2);
-      });
-    }
- 
-  }
 }
